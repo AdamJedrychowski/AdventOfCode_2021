@@ -46,7 +46,6 @@ int main()
             }
     }
     std::cout<<NumOfPaths<<std::endl;
-    std::cout<<std::endl;
 }
 
 int Find(std::vector<Cave*> &Path, Cave &search)
