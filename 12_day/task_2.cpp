@@ -20,6 +20,7 @@ int find_if(std::vector<Cave> &AllCaves, std::string &cave);
 int Paths(Cave &AllCaves, bool ReturnPath);
 int Find(std::vector<Cave*> &Path, Cave &search, bool Flag);
 void Print(std::vector<Cave*> &tab);
+bool SmallCaves(std::vector<Cave*> &TabOfCaves);
 
 int main()
 {
@@ -58,11 +59,25 @@ int Find(std::vector<Cave*> &Path, Cave &search, bool Flag)
     return Count;
 }
 
+bool SmallCaves(std::vector<Cave*> &TabOfCaves)
+{
+    for(Cave *it : TabOfCaves)
+    {
+        if(it->_NameOfCave[0]<96 || it->_NameOfCave=="start") continue;
+        int Num=0;
+        for(Cave *LookFor : TabOfCaves)
+        {
+            if(it==LookFor) Num++;
+            if(Num>1) return true;
+        }
+    }
+    return false;
+}
+
 int Paths(Cave &ActualCave, bool ReturnPath)
 {
     static std::vector<Cave*> PossiblePath;
     int CountPaths=0;
-    static bool Flag=false;
 
     if(ActualCave._NameOfCave=="end")
     {
@@ -70,16 +85,18 @@ int Paths(Cave &ActualCave, bool ReturnPath)
         return 1;
     }
 
+    bool Flag;
+
     for(Cave *it : ActualCave._connections)
     {
-        if(it->_NameOfCave[0]<96 || (Find(PossiblePath, *it, Flag)<2 && it->_NameOfCave!="start"))
+        Flag=SmallCaves(PossiblePath);
+        if((it->_NameOfCave[0]<96 || (Find(PossiblePath, *it, Flag)==0 || (!Flag))) && it->_NameOfCave!="start")
         {
             if(ActualCave._connections.size()==1 && ReturnPath && ActualCave._NameOfCave!="start")
             {
                 PossiblePath.push_back(&ActualCave);
             }
             else if(!PossiblePath.size() || PossiblePath.back()!=&ActualCave) PossiblePath.push_back(&ActualCave);
-            if(!Flag && ActualCave._NameOfCave[0]>=96 && Find(PossiblePath, ActualCave, Flag)==2) Flag=true;
             CountPaths+=Paths(*it, (ActualCave._NameOfCave[0]>96)?0:1);
         }
     }
